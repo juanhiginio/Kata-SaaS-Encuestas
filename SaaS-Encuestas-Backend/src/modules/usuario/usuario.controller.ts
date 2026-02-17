@@ -9,7 +9,7 @@ export default class UsuarioController {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const usuario = await this.usuarioService.create(req.body);
-      res.status(201).json(toUsuarioResponse(usuario));
+      res.status(201).json({ message: "Usuario creado correctamente", data: toUsuarioResponse(usuario) });
     } catch (error) {
       next(error);
     }
@@ -27,7 +27,7 @@ export default class UsuarioController {
   findById = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     try {
       const usuario = await this.usuarioService.findById(req.params.id);
-      res.json(toUsuarioResponse(usuario));
+      res.json({ message: "Usuario encontrado correctamente", data: toUsuarioResponse(usuario) });
     } catch (error) {
       next(error);
     }
@@ -36,7 +36,7 @@ export default class UsuarioController {
   update = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     try {
       const usuario = await this.usuarioService.update(req.params.id, req.body);
-      res.json(toUsuarioResponse(usuario));
+      res.json({ message: "Usuario actualizado correctamente", data: toUsuarioResponse(usuario) });
     } catch (error) {
       next(error);
     }
@@ -46,7 +46,7 @@ export default class UsuarioController {
     try {
       const data = usuarioPatchSchema.parse(req.body);
       const usuario = await this.usuarioService.patch(req.params.id, data);
-      res.json(toUsuarioResponse(usuario));
+      res.json({ message: "Usuario actualizado parcialmente correctamente", data: toUsuarioResponse(usuario) });
     } catch (error) {
       next(error);
     }
@@ -55,7 +55,7 @@ export default class UsuarioController {
   delete = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
     try {
       await this.usuarioService.delete(req.params.id);
-      res.status(204).send();
+      res.status(204).json({ message: "Usuario eliminado correctamente" });
     } catch (error) {
       next(error);
     }
