@@ -1,77 +1,68 @@
-import { toClienteResponse } from './cliente.mapper.js';
-import { clientePatchSchema } from './cliente.schema.js';
+import { Request, Response, NextFunction } from 'express';
+import FormularioService from './formulario.service';
+import { toFormularioResponse } from './formulario.mapper';
+import mongoose from 'mongoose';
 
+interface AuthRequest extends Request {
+  userId?: string;
+}
 
-export default class ClienteController {
-    constructor(clienteService) {
-        this.clienteService = clienteService;
-    }
+import AppError from '../../shared/errores/AppError';
+export default class FormularioController {
 
-    create = async (req, res, next) => {
+    constructor(private formularioService: FormularioService) { }
+
+    create = async (req: AuthRequest, res: Response, next: NextFunction) => {
+
+        if (!mongoose.Types.ObjectId.isValid(req.body.usuarioId)) {
+            throw new AppError("usuarioId inválido", 400);
+        }
+
         try {
-            const cliente = await this.clienteService.create(req.body);
-            res.status(201).json(toClienteResponse(cliente));
+            const formulario = await this.formularioService.create({
+                ...req.body,
+                usuarioId: req.userId
+            });
+            res.status(201).json({ message: "Formulario creado correctamente", formulario: toFormularioResponse(formulario) });
         } catch (error) {
             next(error);
         }
     };
 
-    findAll = async (req, res, next) => {
+    findAll = async (_: Request, res: Response, next: NextFunction) => {
         try {
-            const clientes = await this.clienteService.findAll();
-            res.json(clientes.map(toClienteResponse));
+            const formularios = await this.formularioService.findAll();
+            res.json(formularios.map(toFormularioResponse));
         } catch (error) {
             next(error);
         }
     };
 
-    findById = async (req, res, next) => {
+    findById = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
         try {
-            const cliente = await this.clienteService.findById(
-                Number(req.params.id)
-            );
-            res.json(toClienteResponse(cliente));
+            const formulario = await this.formularioService.findById(req.params.id);
+            res.json({message: "Formulario encontrado correctamente", formulario: toFormularioResponse(formulario) });
         } catch (error) {
             next(error);
         }
     };
 
-    update = async (req, res, next) => {
+    update = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
         try {
-            const cliente = await this.clienteService.update(
-                Number(req.params.id),
+            const formulario = await this.formularioService.update(
+                req.params.id,
                 req.body
             );
-            res.json(toClienteResponse(cliente));
+            res.json({message: "Formulario actualizado correctamente", formulario: toFormularioResponse(formulario) });
         } catch (error) {
             next(error);
         }
     };
 
-    patch = async (req, res, next) => {
+    delete = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
         try {
-            const id = Number(req.params.id);
-
-            if (isNaN(id)) {
-                throw new ValidationError('ID inválido');
-            }
-
-            const data = clientePatchSchema.parse(req.body);
-
-            const clienteActualizado = await this.clienteService.patchCliente(id, data);
-
-            res.status(200).json(
-                toClienteResponse(clienteActualizado)
-            );
-        } catch (error) {
-            next(error);
-        }
-    };
-
-    delete = async (req, res, next) => {
-        try {
-            await this.clienteService.delete(Number(req.params.id));
-            res.status(204).send();
+            await this.formularioService.delete(req.params.id);
+            res.status(204).json({ message: "Formulario eliminado correctamente" });
         } catch (error) {
             next(error);
         }

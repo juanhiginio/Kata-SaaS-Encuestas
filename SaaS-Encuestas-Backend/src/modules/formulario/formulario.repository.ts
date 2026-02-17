@@ -1,41 +1,37 @@
-export default class ClienteRepository {
-  constructor(prisma) {
-    this.prisma = prisma;
+import { FormularioModel, IFormulario } from './formulario.model';
+
+export default class FormularioRepository {
+
+  async create(data: Partial<IFormulario>): Promise<IFormulario> {
+    return FormularioModel.create(data);
   }
 
-  create(data) {
-    return this.prisma.cliente.create({ data });
+  async findAll(): Promise<IFormulario[]> {
+    return FormularioModel.find({ deletedAt: null });
   }
 
-  findAll() {
-    return this.prisma.cliente.findMany({
-      where: { deletedAt: null },
-    });
+  async findById(id: string): Promise<IFormulario | null> {
+    return FormularioModel.findOne({ _id: id, deletedAt: null });
   }
 
-  findById(id) {
-    return this.prisma.cliente.findFirst({
-      where: { idCliente: id, deletedAt: null },
-    });
+  async update(
+    id: string,
+    data: Partial<IFormulario>
+  ): Promise<IFormulario | null> {
+
+    return FormularioModel.findOneAndUpdate(
+      { _id: id, deletedAt: null },
+      { $set: data },
+      {
+        returnDocument: 'after',
+        runValidators: true
+      }
+    );
   }
 
-  findByDocumento(documento) {
-    return this.prisma.cliente.findUnique({
-      where: { documentoIdentidad: documento },
-    });
-  }
-
-  update(id, data) {
-    return this.prisma.cliente.update({
-      where: { idCliente: id },
-      data,
-    });
-  }
-
-  softDelete(id) {
-    return this.prisma.cliente.update({
-      where: { idCliente: id },
-      data: { deletedAt: new Date() },
+  async softDelete(id: string): Promise<void> {
+    await FormularioModel.findByIdAndUpdate(id, {
+      deletedAt: new Date()
     });
   }
 }

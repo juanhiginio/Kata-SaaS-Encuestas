@@ -1,13 +1,16 @@
-export const toClienteResponse = (cliente) => ({
-  id: cliente.idCliente,
-  nombreCompleto: cliente.nombreCompleto,
-  documentoIdentidad: cliente.documentoIdentidad,
-  telefono: cliente.telefono,
-  correoElectronico: cliente.correoElectronico,
-  direccion: cliente.direccion,
-  tipoCliente: cliente.tipoCliente,
-  estado: cliente.estado,
-  observaciones: cliente.observaciones,
-  createdAt: cliente.createdAt,
-  updatedAt: cliente.updatedAt,
+import { IFormulario } from './formulario.model';
+
+export const toFormularioResponse = (formulario: IFormulario) => ({
+  id: formulario._id,
+  titulo: formulario.titulo,
+  descripcion: formulario.descripcion,
+  usuarioId: formulario.usuarioId,
+  preguntas: formulario.preguntas.map(p => ({
+    id: p._id,
+    titulo: p.titulo,
+    requerida: p.requerida,
+    orden: p.orden
+  })),
+  createdAt: formulario.createdAt,
+  updatedAt: formulario.updatedAt
 });
